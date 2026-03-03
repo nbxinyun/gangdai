@@ -413,7 +413,7 @@
                             price = shentong.first_kg_fee;
                             detail = `首1kg¥${shentong.first_kg_fee} | 重量≤1kg`;
                         } else {
-                            const additional = (weight - 1) * shentong.additional_kg_fee;
+                            const additional = (weight + 1) * shentong.additional_kg_fee;
                             price = shentong.first_kg_fee + additional;
                             detail = `首1kg¥${shentong.first_kg_fee} | 续重¥${shentong.additional_kg_fee}/kg | 续重费用¥${additional.toFixed(2)}`;
                         }
