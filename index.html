@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>锯条运费计算器</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <script>
+        // 物流公司运费数据 - 从Excel文件解析的最新数据
+        const freightData = {
+            "aneng": {
+                "湖北": {"start_fee": 25.0, "per_kg_fee": 1.0},
+                "江苏": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "浙江": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "安徽": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "江西": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "湖南": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "河南": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "北京": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "广东": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "天津": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "山东": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "河北": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "福建": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "山西": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "广西": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "陕西": {"start_fee": 30.0, "per_kg_fee": 1.2},
+                "重庆": {"start_fee": 30.0, "per_kg_fee": 1.2}
+            },
+            "shentong": {
+                "湖北": {"first_kg_fee": 5.0, "additional_kg_fee": 1.0},
+                "江苏": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "浙江": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "上海": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "安徽": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "江西": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "湖南": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "河南": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "北京": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "广东": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "天津": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "山东": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "河北": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "福建": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "山西": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "广西": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "陕西": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "重庆": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "四川": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "云南": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "贵州": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "黑龙江": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "吉林": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "辽宁": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "内蒙古": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "新疆": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "西藏": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "青海": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "宁夏": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "甘肃": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
+                "海南": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2}
+            },
+            "shunxin": {
+                "湖北": {"start_fee": 40.0, "per_kg_fee": 0.8},
+                "江苏": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "浙江": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "上海": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "安徽": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "江西": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "湖南": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "河南": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "北京": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "广东": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "天津": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "山东": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "河北": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "福建": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "山西": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "广西": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "陕西": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "重庆": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "四川": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "云南": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "贵州": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "黑龙江": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "吉林": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "辽宁": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "内蒙古": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "新疆": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "西藏": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "青海": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "宁夏": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "甘肃": {"start_fee": 40.0, "per_kg_fee": 1.0},
+                "海南": {"start_fee": 40.0, "per_kg_fee": 1.0}
+            }
+        };
+
+        // 所有省份列表
+        const allProvinces = [
+            "上海", "云南", "内蒙古", "北京", "吉林", "四川", "天津", "宁夏", 
+            "安徽", "山东", "山西", "广东", "广西", "新疆", "江苏", "江西", 
+            "河北", "河南", "浙江", "海南", "湖北", "湖南", "甘肃", "福建", 
+            "西藏", "贵州", "辽宁", "重庆", "陕西", "青海", "黑龙江"
+        ];
+    </script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- 标题区域 -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fas fa-truck text-blue-600 mr-3"></i>锯条运费计算器
+            </h1>
+            <p class="text-gray-600">快速对比三家物流公司运费，选择最优方案</p>
+        </div>
+
+        <!-- 输入区域 -->
+        <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+            <!-- 目的地选择 -->
+            <div class="mb-6">
+                <label for="destination" class="block text-gray-700 font-medium mb-2">
+                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>目的地省份
+                </label>
+                <select id="destination" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <option value="">请选择目的地省份</option>
+                </select>
+            </div>
+
+            <!-- 锯条规格输入 -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-ruler text-green-500 mr-2"></i>锯条规格与数量
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-sm text-gray-600 w-24">规格 (长*宽*厚)</span>
+                        <span class="text-sm text-gray-600 w-16">数量</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-3" id="specifications">
+                    <!-- 输入组1 -->
+                    <div class="flex items-center space-x-3">
+                        <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="number" placeholder="数量" min="1" value="1" class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <!-- 输入组2 -->
+                    <div class="flex items-center space-x-3">
+                        <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="number" placeholder="数量" min="1" value="1" class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <!-- 输入组3 -->
+                    <div class="flex items-center space-x-3">
+                        <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="number" placeholder="数量" min="1" value="1" class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    
+                    <!-- 输入组4 -->
+                    <div class="flex items-center space-x-3">
+                        <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <input type="number" placeholder="数量" min="1" value="1" class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 计算按钮 -->
+            <div class="text-center">
+                <button id="calculateBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition-all transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-300">
+                    <i class="fas fa-calculator mr-2"></i>计算运费
+                </button>
+            </div>
+        </div>
+
+        <!-- 结果区域 -->
+        <div id="resultArea" class="hidden">
+            <!-- 重量信息 -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-weight text-orange-500 mr-2"></i>锯条重量信息
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="weightInfo">
+                    <!-- 重量信息将通过JavaScript动态生成 -->
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <span class="text-lg font-semibold text-gray-800">总重量:</span>
+                        <span id="totalWeight" class="text-xl font-bold text-blue-600">0 kg</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 运费对比表格 -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-table text-purple-500 mr-2"></i>运费对比
+                </h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-3 text-left text-gray-700 font-semibold">物流公司</th>
+                                <th class="px-4 py-3 text-center text-gray-700 font-semibold">计费标准</th>
+                                <th class="px-4 py-3 text-center text-gray-700 font-semibold">运费</th>
+                                <th class="px-4 py-3 text-center text-gray-700 font-semibold">节省</th>
+                            </tr>
+                        </thead>
+                        <tbody id="freightComparison">
+                            <!-- 运费对比信息将通过JavaScript动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 运费对比图表 -->
+            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-chart-bar text-indigo-500 mr-2"></i>运费对比图表
+                </h3>
+                <div class="relative h-80">
+                    <canvas id="freightChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 推荐方案 -->
+            <div id="recommendation" class="bg-gradient-to-r from-green-500 to-blue-500 rounded-xl shadow-lg p-6 text-white">
+                <h3 class="text-xl font-semibold mb-4">
+                    <i class="fas fa-star mr-2"></i>推荐方案
+                </h3>
+                <div class="flex flex-col md:flex-row items-center justify-between">
+                    <div>
+                        <p class="text-lg mb-2">根据您的需求，我们推荐：</p>
+                        <p id="recommendedCompany" class="text-2xl font-bold"></p>
+                    </div>
+                    <div class="mt-4 md:mt-0 text-right">
+                        <p class="text-lg">预计运费：</p>
+                        <p id="recommendedPrice" class="text-3xl font-bold"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化省份下拉框
+        function initProvinces() {
+            const select = document.getElementById('destination');
+            allProvinces.forEach(province => {
+                const option = document.createElement('option');
+                option.value = province;
+                option.textContent = province;
+                select.appendChild(option);
+            });
+        }
+
+        // 计算锯条重量
+        function calculateWeight(spec, quantity) {
+            try {
+                // 解析规格：长*宽*厚 (单位：mm)
+                const [length, width, thickness] = spec.split('*').map(Number);
+                if (isNaN(length) || isNaN(width) || isNaN(thickness)) {
+                    return 0;
+                }
+                
+                // 密度：7.85 g/cm³ (钢的密度)
+                const density = 7.85;
+                
+                // 计算体积：长(mm) × 宽(mm) × 厚(mm) = mm³
+                // 转换为 cm³：mm³ / 1000
+                // 计算重量：体积(cm³) × 密度(g/cm³) = g
+                // 转换为 kg：g / 1000
+                const volumeCm3 = (length * width * thickness) / 1000;
+                const weightKg = (volumeCm3 * density) / 1000 * quantity;
+                
+                return parseFloat(weightKg.toFixed(2));
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        // 计算运费
+        function calculateFreight(company, province, weight) {
+            if (!province || weight <= 0) return { price: 0, formula: '' };
+
+            try {
+                const data = freightData[company];
+                if (!data || !data[province]) {
+                    return { price: 0, formula: '无运费数据' };
+                }
+
+                let price = 0;
+                let formula = '';
+
+                switch (company) {
+                    case 'aneng':
+                        const aneng = data[province];
+                        const anengCalculated = weight * aneng.per_kg_fee;
+                        price = Math.max(aneng.start_fee, anengCalculated);
+                        formula = `max(${aneng.start_fee}元, ${weight}kg × ${aneng.per_kg_fee}元/kg)`;
+                        break;
+                        
+                    case 'shentong':
+                        const shentong = data[province];
+                        if (weight <= 1) {
+                            price = shentong.first_kg_fee;
+                            formula = `${shentong.first_kg_fee}元 (首重)`;
+                        } else {
+                            price = shentong.first_kg_fee + (weight - 1) * shentong.additional_kg_fee;
+                            formula = `${shentong.first_kg_fee}元 + (${weight}kg - 1kg) × ${shentong.additional_kg_fee}元/kg`;
+                        }
+                        break;
+                        
+                    case 'shunxin':
+                        const shunxin = data[province];
+                        const shunxinCalculated = weight * shunxin.per_kg_fee;
+                        price = Math.max(shunxin.start_fee, shunxinCalculated);
+                        formula = `max(${shunxin.start_fee}元, ${weight}kg × ${shunxin.per_kg_fee}元/kg)`;
+                        break;
+                }
+
+                return { price: parseFloat(price.toFixed(2)), formula };
+            } catch (e) {
+                return { price: 0, formula: '计算错误' };
+            }
+        }
+
+        // 渲染重量信息
+        function renderWeightInfo(weights) {
+            const container = document.getElementById('weightInfo');
+            container.innerHTML = '';
+            
+            let totalWeight = 0;
+            
+            weights.forEach((weight, index) => {
+                if (weight > 0) {
+                    totalWeight += weight;
+                    
+                    const div = document.createElement('div');
+                    div.className = 'bg-gray-50 p-4 rounded-lg text-center';
+                    div.innerHTML = `
+                        <p class="text-sm text-gray-600">规格 ${index + 1}</p>
+                        <p class="text-2xl font-bold text-blue-600">${weight} kg</p>
+                    `;
+                    container.appendChild(div);
+                }
+            });
+
+            document.getElementById('totalWeight').textContent = `${totalWeight.toFixed(2)} kg`;
+            return totalWeight;
+        }
+
+        // 渲染运费对比
+        function renderFreightComparison(province, totalWeight, weights) {
+            const container = document.getElementById('freightComparison');
+            container.innerHTML = '';
+            
+            const companies = [
+                { id: 'aneng', name: '安能物流', color: 'bg-blue-100 text-blue-800' },
+                { id: 'shentong', name: '申通快递', color: 'bg-orange-100 text-orange-800' },
+                { id: 'shunxin', name: '顺心捷达', color: 'bg-green-100 text-green-800' }
+            ];
+            
+            const results = [];
+            
+            companies.forEach(company => {
+                const result = calculateFreight(company.id, province, totalWeight);
+                
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-200 hover:bg-gray-50 transition-colors';
+                
+                row.innerHTML = `
+                    <td class="px-4 py-3">
+                        <div class="font-semibold">${company.name}</div>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="text-sm text-gray-600">${result.formula}</div>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <div class="text-xl font-bold ${company.color} px-3 py-1 rounded-full">
+                            ¥${result.price.toFixed(2)}
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-center" id="${company.id}-saving">
+                        <div class="text-sm text-gray-600">-</div>
+                    </td>
+                `;
+                
+                container.appendChild(row);
+                results.push({ company: company.name, price: result.price, color: company.color });
+            });
+
+            // 计算节省金额
+            if (results.length > 0) {
+                const minPrice = Math.min(...results.map(r => r.price));
+                results.forEach(result => {
+                    const saving = result.price - minPrice;
+                    const savingElement = document.getElementById(`${companies.find(c => c.name === result.company).id}-saving`);
+                    
+                    if (saving > 0) {
+                        savingElement.innerHTML = `
+                            <div class="text-sm font-semibold text-red-600">
+                                ¥${saving.toFixed(2)}
+                            </div>
+                        `;
+                    } else if (saving === 0 && result.price === minPrice) {
+                        savingElement.innerHTML = `
+                            <div class="text-sm font-semibold text-green-600">
+                                <i class="fas fa-trophy mr-1"></i>最优
+                            </div>
+                        `;
+                    }
+                });
+            }
+
+            return results;
+        }
+
+        // 渲染图表
+        function renderChart(results) {
+            const ctx = document.getElementById('freightChart').getContext('2d');
+            
+            // 清除旧图表
+            if (window.freightChartInstance) {
+                window.freightChartInstance.destroy();
+            }
+            
+            const colors = results.map(r => {
+                if (r.color.includes('blue')) return '#3B82F6';
+                if (r.color.includes('orange')) return '#F97316';
+                if (r.color.includes('green')) return '#10B981';
+                return '#6B7280';
+            });
+            
+            window.freightChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: results.map(r => r.company),
+                    datasets: [{
+                        label: '运费 (元)',
+                        data: results.map(r => r.price),
+                        backgroundColor: colors,
+                        borderColor: colors.map(color => color),
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            callbacks: {
+                                label: function(context) {
+                                    return `运费: ¥${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return '¥' + value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutBounce'
+                    }
+                }
+            });
+        }
+
+        // 渲染推荐方案
+        function renderRecommendation(results) {
+            if (results.length === 0) return;
+            
+            const minPrice = Math.min(...results.map(r => r.price));
+            const recommended = results.find(r => r.price === minPrice);
+            
+            document.getElementById('recommendedCompany').textContent = recommended.company;
+            document.getElementById('recommendedPrice').textContent = `¥${recommended.price.toFixed(2)}`;
+            
+            const recommendationDiv = document.getElementById('recommendation');
+            recommendationDiv.className = `bg-gradient-to-r from-green-500 to-blue-500 rounded-xl shadow-lg p-6 text-white`;
+            
+            if (recommended.company === '安能物流') {
+                recommendationDiv.className = `bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl shadow-lg p-6 text-white`;
+            } else if (recommended.company === '申通快递') {
+                recommendationDiv.className = `bg-gradient-to-r from-orange-500 to-red-600 rounded-xl shadow-lg p-6 text-white`;
+            } else if (recommended.company === '顺心捷达') {
+                recommendationDiv.className = `bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl shadow-lg p-6 text-white`;
+            }
+        }
+
+        // 计算按钮点击事件
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const destination = document.getElementById('destination').value;
+            const specInputs = document.querySelectorAll('#specifications input[type="text"]');
+            const quantityInputs = document.querySelectorAll('#specifications input[type="number"]');
+            
+            // 验证输入
+            if (!destination) {
+                alert('请选择目的地省份');
+                return;
+            }
+            
+            let hasValidInput = false;
+            const weights = [];
+            
+            // 计算每个规格的重量
+            for (let i = 0; i < specInputs.length; i++) {
+                const spec = specInputs[i].value.trim();
+                const quantity = parseInt(quantityInputs[i].value) || 1;
+                
+                if (spec) {
+                    hasValidInput = true;
+                    const weight = calculateWeight(spec, quantity);
+                    weights.push(weight);
+                } else {
+                    weights.push(0);
+                }
+            }
+            
+            if (!hasValidInput) {
+                alert('请至少输入一个锯条规格');
+                return;
+            }
+            
+            // 显示结果区域
+            document.getElementById('resultArea').classList.remove('hidden');
+            
+            // 渲染重量信息
+            const totalWeight = renderWeightInfo(weights);
+            
+            // 渲染运费对比
+            const results = renderFreightComparison(destination, totalWeight, weights);
+            
+            // 渲染图表
+            renderChart(results);
+            
+            // 渲染推荐方案
+            renderRecommendation(results);
+            
+            // 滚动到结果区域
+            document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            initProvinces();
+        });
+    </script>
+</body>
+</html>
