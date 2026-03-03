@@ -6,8 +6,6 @@
     <title>锯条运费计算器</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
-    <!-- 如需保留图表取消下一行注释 -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script> -->
     
     <script>
         // 物流公司运费数据
@@ -32,7 +30,7 @@
                 "重庆": {"start_fee": 30.0, "per_kg_fee": 1.2}
             },
             "shentong": {
-                "湖北": {"first_kg_fee": 5.0, "additional_kg_fee": 1.0},
+                "湖北": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
                 "江苏": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
                 "浙江": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
                 "上海": {"first_kg_fee": 5.0, "additional_kg_fee": 1.2},
@@ -119,15 +117,25 @@
         </div>
 
         <!-- 输入区域 -->
-        <div class="bg-white rounded-lg border border-gray-200 p-5 mb-6">
-            <!-- 目的地选择 -->
-            <div class="mb-5">
-                <label for="destination" class="block text-gray-700 font-medium mb-2">
-                    <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>目的地省份
-                </label>
-                <select id="destination" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">请选择目的地省份</option>
-                </select>
+        <div class="bg-white rounded-lg border border-gray-200 p-5 mb-6 shadow-sm">
+            <!-- 目的地选择和重置按钮行 -->
+            <div class="mb-5 flex items-center justify-between">
+                <div class="w-2/3">
+                    <label for="destination" class="block text-gray-700 font-medium mb-2">
+                        <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>目的地省份
+                    </label>
+                    <!-- 缩短省份输入框宽度 -->
+                    <select id="destination" class="w-3/4 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                        <option value="">请选择目的地省份</option>
+                    </select>
+                    <div id="provinceError" class="hidden text-red-500 text-sm mt-1">请选择有效的目的地省份</div>
+                </div>
+                <!-- 重置所有按钮移到右侧 -->
+                <div class="w-1/3 text-right">
+                    <button id="resetAllBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg transition-all">
+                        <i class="fas fa-undo mr-2"></i>重置所有
+                    </button>
+                </div>
             </div>
 
             <!-- 锯条规格输入 -->
@@ -136,49 +144,56 @@
                     <i class="fas fa-ruler text-green-500 mr-2"></i>锯条规格与数量
                 </h3>
                 <div class="flex items-center space-x-2 mb-2">
-                    <span class="text-sm text-gray-600 w-24">规格 (长*宽*厚)</span>
+                    <span class="text-sm text-gray-600 w-28">规格 (长*宽*厚/mm)</span>
                     <span class="text-sm text-gray-600 w-16">数量</span>
+                    <span class="text-sm text-gray-600 w-20">单重(kg)</span>
+                    <span class="text-sm text-gray-600 w-8"></span>
                 </div>
                 
                 <div class="space-y-3" id="specifications">
                     <!-- 基础输入组 -->
-                    <div class="flex items-center space-x-3">
-                        <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <input type="number" placeholder="数量" min="1" value="1" class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    <div class="flex items-center space-x-3 spec-row">
+                        <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
+                        <input type="number" placeholder="数量" min="1" value="1" class="w-16 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 quantity-input">
+                        <input type="text" readonly placeholder="0.00" class="w-20 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-center weight-display">
+                        <button class="delete-spec-btn w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-times"></i>
+                        </button>
                     </div>
                 </div>
                 
-                <!-- 添加规格按钮 -->
-                <button id="addSpecBtn" class="mt-3 text-blue-600 hover:text-blue-800 text-sm flex items-center">
-                    <i class="fas fa-plus mr-1"></i> 添加规格
-                </button>
+                <!-- 操作按钮 -->
+                <div class="flex items-center mt-3 gap-3">
+                    <button id="addSpecBtn" class="text-blue-600 hover:text-blue-800 text-sm flex items-center">
+                        <i class="fas fa-plus mr-1"></i> 添加规格
+                    </button>
+                    <button id="resetSpecBtn" class="text-gray-600 hover:text-gray-800 text-sm flex items-center">
+                        <i class="fas fa-refresh mr-1"></i> 重置规格
+                    </button>
+                </div>
+                <div id="specError" class="hidden text-red-500 text-sm mt-1">请填写有效的规格格式（长*宽*厚）</div>
             </div>
 
-            <!-- 计算按钮 -->
-            <div class="text-center">
-                <button id="calculateBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-all">
-                    <i class="fas fa-calculator mr-2"></i>计算运费
-                </button>
+            <!-- 总重量信息区域 - 替换为推荐选择 -->
+            <div id="weightInfoArea" class="hidden bg-gray-50 rounded-lg p-4 border border-gray-200 mb-5">
+                <div class="flex flex-wrap gap-4">
+                    <div class="w-full md:w-auto flex-1">
+                        <span class="text-lg font-semibold text-gray-800">总重量:</span>
+                        <span id="totalWeight" class="text-xl font-bold text-blue-600 ml-2">0 kg</span>
+                    </div>
+                    <div class="w-full md:w-auto flex-1">
+                        <span class="text-lg font-semibold text-gray-800">推荐选择:</span>
+                        <span id="recommendedChoice" class="text-lg text-green-600 ml-2 font-medium">暂无</span>
+                    </div>
+                </div>
             </div>
+
         </div>
 
         <!-- 结果区域 -->
         <div id="resultArea" class="hidden">
-            <!-- 重量信息 -->
-            <div class="bg-white rounded-lg border border-gray-200 p-5 mb-5">
-                <h3 class="text-lg font-semibold text-gray-800 mb-3">
-                    <i class="fas fa-weight text-orange-500 mr-2"></i>锯条重量信息
-                </h3>
-                <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                    <span class="text-lg font-semibold text-gray-800">总重量:</span>
-                    <span id="totalWeight" class="text-xl font-bold text-blue-600">0 kg</span>
-                </div>
-            </div>
-
-            </div>
-
             <!-- 运费对比表格 -->
-            <div class="bg-white rounded-lg border border-gray-200 p-5 mb-5">
+            <div class="bg-white rounded-lg border border-gray-200 p-5 mb-5 shadow-sm">
                 <h3 class="text-lg font-semibold text-gray-800 mb-3">
                     <i class="fas fa-table text-purple-500 mr-2"></i>运费对比
                 </h3>
@@ -187,7 +202,8 @@
                         <thead>
                             <tr class="bg-gray-50">
                                 <th class="px-3 py-2 text-left text-gray-700 font-semibold">物流公司</th>
-                                <th class="px-3 py-2 text-center text-gray-700 font-semibold">运费</th>
+                                <th class="px-3 py-2 text-center text-gray-700 font-semibold">运费(¥)</th>
+                                <th class="px-3 py-2 text-center text-gray-700 font-semibold">计算明细</th>
                             </tr>
                         </thead>
                         <tbody id="freightComparison">
@@ -198,7 +214,7 @@
             </div>
 
             <!-- 推荐方案 -->
-            <div id="recommendation" class="bg-blue-500 rounded-lg p-5 text-white">
+            <div id="recommendation" class="bg-blue-500 rounded-lg p-5 text-white shadow-md">
                 <h3 class="text-lg font-semibold mb-3">
                     <i class="fas fa-star mr-2"></i>推荐方案
                 </h3>
@@ -231,76 +247,176 @@
         // 添加规格输入框
         function addSpecInput() {
             const container = document.getElementById('specifications');
+            const rows = container.querySelectorAll('.spec-row');
+            
             const div = document.createElement('div');
-            div.className = 'flex items-center space-x-3';
+            div.className = 'flex items-center space-x-3 spec-row';
             div.innerHTML = `
-                <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                <input type="number" placeholder="数量" min="1" value="1" class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
+                <input type="number" placeholder="数量" min="1" value="1" class="w-16 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 quantity-input">
+                <input type="text" readonly placeholder="0.00" class="w-20 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-center weight-display">
+                <button class="delete-spec-btn w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 rounded-full bg-gray-100 hover:bg-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
             `;
             container.appendChild(div);
+
+            // 为删除按钮绑定事件
+            bindDeleteBtnEvents();
+            // 更新删除按钮禁用状态
+            updateDeleteBtnStatus();
+            
+            // 新增行后立即触发自动计算
+            autoCalculateFreight();
         }
 
-        // 计算锯条重量
-        function calculateWeight(spec, quantity) {
+        // 绑定删除规格行事件
+        function bindDeleteBtnEvents() {
+            const deleteBtns = document.querySelectorAll('.delete-spec-btn');
+            deleteBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.spec-row').remove();
+                    // 重新计算所有规格重量
+                    calculateAllSpecWeights();
+                    // 更新删除按钮禁用状态
+                    updateDeleteBtnStatus();
+                    // 删除后自动计算运费
+                    autoCalculateFreight();
+                });
+            });
+        }
+
+        // 更新删除按钮禁用状态（至少保留一行）
+        function updateDeleteBtnStatus() {
+            const rows = document.querySelectorAll('.spec-row');
+            rows.forEach((row, index) => {
+                const btn = row.querySelector('.delete-spec-btn');
+                btn.disabled = rows.length <= 1;
+            });
+        }
+
+        // 验证规格格式
+        function validateSpecFormat(spec) {
+            const regex = /^\d+(\.\d+)?\*\d+(\.\d+)?\*\d+(\.\d+)?$/;
+            return regex.test(spec.trim());
+        }
+
+        // 计算单条规格重量并显示
+        function calculateSpecWeight(inputEl, quantityEl, displayEl) {
+            const spec = inputEl.value.trim();
+            const quantity = parseInt(quantityEl.value) || 1;
+            
+            if (!spec) {
+                displayEl.value = '0.00';
+                return 0;
+            }
+            
+            if (!validateSpecFormat(spec)) {
+                displayEl.value = '格式错误';
+                return -1;
+            }
+            
             try {
                 const [length, width, thickness] = spec.split('*').map(Number);
-                if (isNaN(length) || isNaN(width) || isNaN(thickness)) return 0;
+                if (isNaN(length) || isNaN(width) || isNaN(thickness) || length <= 0 || width <= 0 || thickness <= 0) {
+                    displayEl.value = '数值错误';
+                    return -1;
+                }
                 const density = 7.85; // 钢的密度 g/cm³
-                const volumeCm3 = (length * width * thickness) / 1000;
-                const weightKg = (volumeCm3 * density) / 1000 * quantity;
-                return parseFloat(weightKg.toFixed(2));
+                const volumeCm3 = (length * width * thickness) / 1000; // 转换为cm³ (mm³ -> cm³)
+                const weightKg = (volumeCm3 * density) / 1000 * quantity; // 转换为kg
+                const weight = parseFloat(weightKg.toFixed(4));
+                displayEl.value = weight.toFixed(2);
+                return weight;
             } catch (e) {
-                return 0;
+                displayEl.value = '计算错误';
+                return -1;
             }
         }
 
-        // 计算运费
+        // 计算所有规格重量
+        function calculateAllSpecWeights() {
+            const specInputs = document.querySelectorAll('.spec-input');
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            const weightDisplays = document.querySelectorAll('.weight-display');
+            let totalWeight = 0;
+            let hasError = false;
+
+            specInputs.forEach((input, index) => {
+                const weight = calculateSpecWeight(input, quantityInputs[index], weightDisplays[index]);
+                if (weight < 0) {
+                    hasError = true;
+                } else {
+                    totalWeight += weight;
+                }
+            });
+
+            return { totalWeight, hasError };
+        }
+
+        // 渲染重量信息
+        function renderWeightInfo() {
+            const specWeightResult = calculateAllSpecWeights();
+            
+            // 显示错误提示
+            document.getElementById('specError').classList.toggle('hidden', !specWeightResult.hasError);
+            
+            // 使用规格计算重量
+            if (specWeightResult.hasError) {
+                document.getElementById('totalWeight').textContent = '计算错误';
+                document.getElementById('recommendedChoice').textContent = '暂无';
+                document.getElementById('weightInfoArea').classList.add('hidden');
+                return { weight: 0, hasError: true };
+            }
+            
+            document.getElementById('totalWeight').textContent = `${specWeightResult.totalWeight.toFixed(2)} kg`;
+            // 显示重量信息区域
+            document.getElementById('weightInfoArea').classList.remove('hidden');
+            return { weight: specWeightResult.totalWeight, hasError: specWeightResult.hasError };
+        }
+
+        // 计算运费（返回价格和明细）
         function calculateFreight(company, province, weight) {
-            if (!province || weight <= 0) return { price: 0 };
+            if (!province || weight <= 0) return { price: 0, detail: '无效参数' };
             try {
                 const data = freightData[company];
-                if (!data || !data[province]) return { price: 0 };
+                if (!data || !data[province]) return { price: 0, detail: '无该地区运费数据' };
 
                 let price = 0;
+                let detail = '';
+
                 switch (company) {
                     case 'aneng':
                         const aneng = data[province];
                         const anengCalculated = weight * aneng.per_kg_fee;
                         price = Math.max(aneng.start_fee, anengCalculated);
+                        detail = `起步费¥${aneng.start_fee} | 每公斤¥${aneng.per_kg_fee} | 按重量计算¥${anengCalculated.toFixed(2)} | 最终取最大值`;
                         break;
                     case 'shentong':
                         const shentong = data[province];
-                        price = weight <= 1 ? shentong.first_kg_fee : shentong.first_kg_fee + (weight - 1) * shentong.additional_kg_fee;
+                        if (weight <= 1) {
+                            price = shentong.first_kg_fee;
+                            detail = `首1kg¥${shentong.first_kg_fee} | 重量≤1kg`;
+                        } else {
+                            const additional = (weight - 1) * shentong.additional_kg_fee;
+                            price = shentong.first_kg_fee + additional;
+                            detail = `首1kg¥${shentong.first_kg_fee} | 续重¥${shentong.additional_kg_fee}/kg | 续重费用¥${additional.toFixed(2)}`;
+                        }
                         break;
                     case 'shunxin':
                         const shunxin = data[province];
                         const shunxinCalculated = weight * shunxin.per_kg_fee;
                         price = Math.max(shunxin.start_fee, shunxinCalculated);
+                        detail = `起步费¥${shunxin.start_fee} | 每公斤¥${shunxin.per_kg_fee} | 按重量计算¥${shunxinCalculated.toFixed(2)} | 最终取最大值`;
                         break;
                 }
-                return { price: parseFloat(price.toFixed(2)) };
+                return { 
+                    price: parseFloat(price.toFixed(2)),
+                    detail: detail
+                };
             } catch (e) {
-                return { price: 0 };
+                return { price: 0, detail: '计算异常' };
             }
-        }
-
-        // 渲染重量信息
-        function renderWeightInfo() {
-            const inputs = document.querySelectorAll('#specifications input[type="text"]');
-            const quantityInputs = document.querySelectorAll('#specifications input[type="number"]');
-            let totalWeight = 0;
-
-            inputs.forEach((input, index) => {
-                const spec = input.value.trim();
-                const quantity = parseInt(quantityInputs[index].value) || 1;
-                if (spec) {
-                    const weight = calculateWeight(spec, quantity);
-                    totalWeight += weight;
-                }
-            });
-
-            document.getElementById('totalWeight').textContent = `${totalWeight.toFixed(2)} kg`;
-            return totalWeight;
         }
 
         // 渲染运费对比
@@ -316,50 +432,133 @@
             
             const results = [];
             companies.forEach(company => {
-                const { price } = calculateFreight(company.id, province, totalWeight);
-                results.push({ ...company, price });
+                const { price, detail } = calculateFreight(company.id, province, totalWeight);
+                results.push({ ...company, price, detail });
                 
                 const tr = document.createElement('tr');
-                tr.className = 'border-b border-gray-100';
+                tr.className = 'border-b border-gray-100 hover:bg-gray-50';
                 tr.innerHTML = `
                     <td class="px-3 py-3 text-left">${company.name}</td>
-                    <td class="px-3 py-3 text-center font-medium">${price > 0 ? `¥${price}` : '无数据'}</td>
+                    <td class="px-3 py-3 text-center font-medium ${price > 0 ? 'text-blue-600' : 'text-gray-400'}">
+                        ${price > 0 ? `¥${price}` : '无数据'}
+                    </td>
+                    <td class="px-3 py-3 text-center text-sm text-gray-600">
+                        ${detail}
+                    </td>
                 `;
                 container.appendChild(tr);
             });
 
-            // 推荐最优方案
-            const best = results.filter(item => item.price > 0).sort((a, b) => a.price - b.price)[0];
-            if (best) {
+            // 推荐最优方案（过滤无数据的）
+            const validResults = results.filter(item => item.price > 0);
+            if (validResults.length > 0) {
+                const best = validResults.sort((a, b) => a.price - b.price)[0];
                 document.getElementById('recommendedCompany').textContent = best.name;
                 document.getElementById('recommendedPrice').textContent = `¥${best.price}`;
+                // 更新重量区域的推荐选择
+                document.getElementById('recommendedChoice').textContent = `${best.name} (¥${best.price})`;
+            } else {
+                document.getElementById('recommendedCompany').textContent = '暂无可用物流';
+                document.getElementById('recommendedPrice').textContent = '¥0.00';
+                document.getElementById('recommendedChoice').textContent = '暂无可用物流';
             }
+        }
+
+        // 重置规格输入
+        function resetSpecInputs() {
+            const container = document.getElementById('specifications');
+            // 保留第一行并清空
+            container.innerHTML = `
+                <div class="flex items-center space-x-3 spec-row">
+                    <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
+                    <input type="number" placeholder="数量" min="1" value="1" class="w-16 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 quantity-input">
+                    <input type="text" readonly placeholder="0.00" class="w-20 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-center weight-display">
+                    <button class="delete-spec-btn w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            bindDeleteBtnEvents();
+            // 重置推荐选择显示
+            document.getElementById('recommendedChoice').textContent = '暂无';
+            // 隐藏重量信息区域
+            document.getElementById('weightInfoArea').classList.add('hidden');
+        }
+
+        // 重置所有输入和结果
+        function resetAll() {
+            document.getElementById('destination').value = '';
+            resetSpecInputs();
+            document.getElementById('resultArea').classList.add('hidden');
+            document.getElementById('provinceError').classList.add('hidden');
+            document.getElementById('specError').classList.add('hidden');
+            document.getElementById('weightInfoArea').classList.add('hidden');
+            document.getElementById('recommendedChoice').textContent = '暂无';
+        }
+
+        // 自动计算运费的核心函数
+        function autoCalculateFreight() {
+            // 验证省份选择
+            const province = document.getElementById('destination').value;
+            if (!province) {
+                document.getElementById('provinceError').classList.remove('hidden');
+                document.getElementById('resultArea').classList.add('hidden');
+                document.getElementById('weightInfoArea').classList.add('hidden');
+                document.getElementById('recommendedChoice').textContent = '暂无';
+                return;
+            } else {
+                document.getElementById('provinceError').classList.add('hidden');
+            }
+
+            // 计算重量并验证
+            const weightResult = renderWeightInfo();
+            if (weightResult.hasError || weightResult.weight <= 0) {
+                document.getElementById('resultArea').classList.add('hidden');
+                document.getElementById('recommendedChoice').textContent = '暂无';
+                return;
+            }
+
+            // 渲染运费对比
+            renderFreightComparison(province, weightResult.weight);
+            document.getElementById('resultArea').classList.remove('hidden');
         }
 
         // 初始化页面
         window.onload = function() {
             initProvinces();
+            bindDeleteBtnEvents();
             
             // 添加规格按钮事件
             document.getElementById('addSpecBtn').addEventListener('click', addSpecInput);
             
-            // 计算按钮事件
-            document.getElementById('calculateBtn').addEventListener('click', function() {
-                const province = document.getElementById('destination').value;
-                if (!province) {
-                    alert('请选择目的地省份');
-                    return;
-                }
-
-                const totalWeight = renderWeightInfo();
-                if (totalWeight <= 0) {
-                    alert('请填写有效的锯条规格');
-                    return;
-                }
-
-                renderFreightComparison(province, totalWeight);
-                document.getElementById('resultArea').classList.remove('hidden');
+            // 重置规格按钮事件
+            document.getElementById('resetSpecBtn').addEventListener('click', function() {
+                resetSpecInputs();
+                // 重置后隐藏结果
+                document.getElementById('resultArea').classList.add('hidden');
             });
+            
+            // 重置所有按钮事件
+            document.getElementById('resetAllBtn').addEventListener('click', resetAll);
+            
+            // 规格输入实时验证和计算，并自动触发运费计算
+            document.addEventListener('input', function(e) {
+                if (e.target.classList.contains('spec-input') || e.target.classList.contains('quantity-input')) {
+                    const row = e.target.closest('.spec-row');
+                    if (row) {
+                        const specInput = row.querySelector('.spec-input');
+                        const quantityInput = row.querySelector('.quantity-input');
+                        const weightDisplay = row.querySelector('.weight-display');
+                        calculateSpecWeight(specInput, quantityInput, weightDisplay);
+                        
+                        // 输入变化后自动计算运费
+                        autoCalculateFreight();
+                    }
+                }
+            });
+            
+            // 省份选择变化时自动计算运费
+            document.getElementById('destination').addEventListener('change', autoCalculateFreight);
         };
     </script>
 </body>
