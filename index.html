@@ -405,7 +405,7 @@
                         const aneng = data[province];
                         const anengCalculated = weight * aneng.per_kg_fee;
                         price = Math.max(aneng.start_fee, anengCalculated);
-                        detail = `起步费¥${aneng.start_fee} | 每公斤¥${aneng.per_kg_fee} | 按重量计算¥${anengCalculated.toFixed(2)} | 最终取最大值，100kg以上有优惠，具体咨询安能客服`;
+                        detail = `起步费¥${aneng.start_fee} | 每公斤¥${aneng.per_kg_fee} | 100kg及300kg以上有不同优惠，具体咨询安能客服`;
                         break;
                     case 'shentong':
                         const shentong = data[province];
@@ -422,7 +422,7 @@
                         const shunxin = data[province];
                         const shunxinCalculated = weight * shunxin.per_kg_fee;
                         price = Math.max(shunxin.start_fee, shunxinCalculated);
-                        detail = `起步费¥${shunxin.start_fee} | 每公斤¥${shunxin.per_kg_fee} | 按重量计算¥${shunxinCalculated.toFixed(2)} | 最终取最大值，此运费仅供参考`;
+                        detail = `起步费¥${shunxin.start_fee} | 每公斤¥${shunxin.per_kg_fee} | 此运费仅供参考`;
                         break;
                 }
                 return { 
