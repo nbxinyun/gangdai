@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>锯条运费计算器</title>
+    <title>三雄金属科技运费计算器</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
     
@@ -125,9 +125,9 @@
         <!-- 标题区域 -->
         <div class="text-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">
-                <i class="fas fa-truck text-blue-600 mr-2"></i>锯条运费计算器
+                <i class="fas fa-truck text-blue-600 mr-2"></i>三雄金属科技有限公司
             </h1>
-            <p class="text-gray-600">快速对比三家物流公司运费</p>
+            <p class="text-gray-600">湖北公司运费计算器</p>
         </div>
 
         <!-- 输入区域 -->
@@ -139,7 +139,7 @@
                         <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>目的地省份
                     </label>
                     <!-- 缩短省份输入框宽度 -->
-                    <select id="destination" class="w-2/5 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <select id="destination" class="w-25 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                         <option value="">请选择目的地省份</option>
                     </select>
                     <div id="provinceError" class="hidden text-red-500 text-sm mt-1">请选择有效的目的地省份</div>
@@ -405,7 +405,7 @@
                         const aneng = data[province];
                         const anengCalculated = weight * aneng.per_kg_fee;
                         price = Math.max(aneng.start_fee, anengCalculated);
-                        detail = `起步费¥${aneng.start_fee} | 每公斤¥${aneng.per_kg_fee} | 按重量计算¥${anengCalculated.toFixed(2)} | 最终取最大值`;
+                        detail = `起步费¥${aneng.start_fee} | 每公斤¥${aneng.per_kg_fee} | 按重量计算¥${anengCalculated.toFixed(2)} | 最终取最大值，100kg以上有优惠，具体咨询安能客服`;
                         break;
                     case 'shentong':
                         const shentong = data[province];
@@ -422,7 +422,7 @@
                         const shunxin = data[province];
                         const shunxinCalculated = weight * shunxin.per_kg_fee;
                         price = Math.max(shunxin.start_fee, shunxinCalculated);
-                        detail = `起步费¥${shunxin.start_fee} | 每公斤¥${shunxin.per_kg_fee} | 按重量计算¥${shunxinCalculated.toFixed(2)} | 最终取最大值`;
+                        detail = `起步费¥${shunxin.start_fee} | 每公斤¥${shunxin.per_kg_fee} | 按重量计算¥${shunxinCalculated.toFixed(2)} | 最终取最大值，此运费仅供参考`;
                         break;
                 }
                 return { 
