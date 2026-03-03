@@ -167,7 +167,7 @@
                 <div class="space-y-3" id="specifications">
                     <!-- 基础输入组 - 核心修改：将spec-input的flex-1改为w-64（固定宽度） -->
                     <div class="flex items-center space-x-3 spec-row">
-                        <input type="text" placeholder="例如: 6250*100*1.05" class="w-60 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
+                        <input type="text" placeholder="例如: 6250*100*1.05" class="w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
                         <input type="number" placeholder="数量" min="1" value="1" class="w-16 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 quantity-input">
                         <input type="text" readonly placeholder="0.00" class="w-20 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-center weight-display">
                         <button class="delete-spec-btn w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-opacity-50 disabled:cursor-not-allowed" disabled>
@@ -267,7 +267,7 @@
             div.className = 'flex items-center space-x-3 spec-row';
             // 核心修改：新增行的spec-input也改为w-64
             div.innerHTML = `
-                <input type="text" placeholder="例如: 6250*100*1.05" class="w-60 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
+                <input type="text" placeholder="例如: 6250*100*1.05" class="w-40 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
                 <input type="number" placeholder="数量" min="1" value="1" class="w-16 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 quantity-input">
                 <input type="text" readonly placeholder="0.00" class="w-20 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-center weight-display">
                 <button class="delete-spec-btn w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 rounded-full bg-gray-100 hover:bg-gray-200">
