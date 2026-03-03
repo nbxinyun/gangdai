@@ -139,7 +139,7 @@
                         <i class="fas fa-map-marker-alt text-red-500 mr-2"></i>目的地省份
                     </label>
                     <!-- 缩短省份输入框宽度 -->
-                    <select id="destination" class="w-3/4 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    <select id="destination" class="w-2/5 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                         <option value="">请选择目的地省份</option>
                     </select>
                     <div id="provinceError" class="hidden text-red-500 text-sm mt-1">请选择有效的目的地省份</div>
@@ -158,19 +158,19 @@
                     <i class="fas fa-ruler text-green-500 mr-2"></i>锯条规格与数量
                 </h3>
                 <div class="flex items-center space-x-2 mb-2">
-                    <span class="text-sm text-gray-600 w-28">规格 (长*宽*厚/mm)</span>
+                    <span class="text-sm text-gray-600 w-64">规格 (长*宽*厚/mm)</span>
                     <span class="text-sm text-gray-600 w-16">数量</span>
                     <span class="text-sm text-gray-600 w-20">单重(kg)</span>
                     <span class="text-sm text-gray-600 w-8"></span>
                 </div>
                 
                 <div class="space-y-3" id="specifications">
-                    <!-- 基础输入组 -->
+                    <!-- 基础输入组 - 核心修改：将spec-input的flex-1改为w-64（固定宽度） -->
                     <div class="flex items-center space-x-3 spec-row">
-                        <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
+                        <input type="text" placeholder="例如: 6250*100*1.05" class="w-60 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
                         <input type="number" placeholder="数量" min="1" value="1" class="w-16 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 quantity-input">
                         <input type="text" readonly placeholder="0.00" class="w-20 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-center weight-display">
-                        <button class="delete-spec-btn w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        <button class="delete-spec-btn w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-opacity-50 disabled:cursor-not-allowed" disabled>
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
@@ -265,8 +265,9 @@
             
             const div = document.createElement('div');
             div.className = 'flex items-center space-x-3 spec-row';
+            // 核心修改：新增行的spec-input也改为w-64
             div.innerHTML = `
-                <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
+                <input type="text" placeholder="例如: 6250*100*1.05" class="w-60 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
                 <input type="number" placeholder="数量" min="1" value="1" class="w-16 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 quantity-input">
                 <input type="text" readonly placeholder="0.00" class="w-20 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-center weight-display">
                 <button class="delete-spec-btn w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 rounded-full bg-gray-100 hover:bg-gray-200">
@@ -481,10 +482,10 @@
         // 重置规格输入
         function resetSpecInputs() {
             const container = document.getElementById('specifications');
-            // 保留第一行并清空
+            // 保留第一行并清空 - 核心修改：重置后的行也使用w-64
             container.innerHTML = `
                 <div class="flex items-center space-x-3 spec-row">
-                    <input type="text" placeholder="例如: 6250*100*1.05" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
+                    <input type="text" placeholder="例如: 6250*100*1.05" class="w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 spec-input">
                     <input type="number" placeholder="数量" min="1" value="1" class="w-16 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 quantity-input">
                     <input type="text" readonly placeholder="0.00" class="w-20 px-4 py-2 border border-gray-200 bg-gray-50 rounded-lg text-center weight-display">
                     <button class="delete-spec-btn w-8 h-8 flex items-center justify-center text-red-500 hover:text-red-700 rounded-full bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
